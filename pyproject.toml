@@ -1,0 +1,15 @@
+[project]
+name = "digi-tionary"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "algorand-python==3.3.0",
+    "cffi==2.0.0",
+    "msgpack==1.1.2",
+    "py-algorand-sdk==2.11.1",
+    "pycparser==3.0",
+    "pycryptodomex==3.23.0",
+    "pynacl==1.6.2",
+]
