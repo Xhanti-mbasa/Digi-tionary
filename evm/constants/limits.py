@@ -1,0 +1,2 @@
+MAX_STACK_SIZE = 1024
+WORD_SIZE = 32  # 32 bytes = 256 bits
