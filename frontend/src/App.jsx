@@ -80,8 +80,16 @@ export default function App() {
           {/* Simple Navbar for Navigation testing */}
           <nav className="bg-white border-b border-gray-100 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
             <div className="font-bold text-xl tracking-tight">Digi-tionary</div>
-            <div className="text-sm font-mono bg-gray-100 px-3 py-1 rounded-full text-gray-600">
-              {userAddress.slice(0, 6)}...{userAddress.slice(-4)}
+            <div className="flex items-center gap-4">
+              <div className="text-sm font-mono bg-gray-100 px-3 py-1 rounded-full text-gray-600">
+                {userAddress.slice(0, 6)}...{userAddress.slice(-4)}
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition-all"
+              >
+                Logout
+              </button>
             </div>
           </nav>
 

@@ -20,8 +20,8 @@ export default function CreatePage({ userAddress }) {
         try {
             const res = await fetch('/api/chain/words');
             const data = await res.json();
-            // Filter words owned by current user for editing, but could show all
-            setWords(data.filter(w => w.owner === userAddress));
+            // Show all words, but highlight user's own words for editing
+            setWords(data.data || data);
         } catch (e) {
             console.error("Failed to fetch words", e);
         }
@@ -40,15 +40,21 @@ export default function CreatePage({ userAddress }) {
             wordId: isUpdate ? selectedWord.id : undefined
         };
 
+        if (!content.trim()) {
+            alert("Please enter content for the word definition");
+            setLoading(false);
+            return;
+        }
+
         try {
-            const res = await fetch(`/api/chain/transaction?address=${userAddress}`, {
+            const res = await fetch(`/api/chain/transaction?address=${encodeURIComponent(userAddress)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
             const result = await res.json();
-            if (!res.ok) throw new Error(result.detail);
+            if (!res.ok) throw new Error(result.detail || "Transaction failed");
 
             alert(isUpdate ? "Version committed!" : "Word created!");
             setTerm('');
@@ -126,9 +132,10 @@ export default function CreatePage({ userAddress }) {
 
                         <button
                             type="submit"
-                            disabled={loading}
-                            className="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition-all disabled:opacity-50"
+                            disabled={loading || !content.trim()}
+                            className="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                         >
+                            {loading && <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
                             {loading ? 'Processing Transaction...' : (selectedWord ? 'Commit Changes' : 'Mint Word')}
                         </button>
                     </form>

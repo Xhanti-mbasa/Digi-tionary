@@ -81,8 +81,11 @@ async def health():
 # --- Blockchain Endpoints ---
 
 @app.post("/api/chain/transaction")
-async def submit_transaction(tx: Transaction, address: str): # In real app, verify session
-    # We pass the address as the 'sender' to the EVM
+async def submit_transaction(tx: Transaction, address: str):
+    """Execute a blockchain transaction from the user's address"""
+    if not address or not address.startswith('0x'):
+        raise HTTPException(status_code=400, detail="Invalid address")
+    
     result = evm.execute_transaction(address, tx.model_dump())
     if not result["success"]:
         raise HTTPException(status_code=400, detail=result.get("error"))
@@ -90,8 +93,18 @@ async def submit_transaction(tx: Transaction, address: str): # In real app, veri
 
 @app.get("/api/chain/words")
 async def get_words():
-    return evm.get_state().get_all_words()
+    """Fetch all words from the blockchain"""
+    try:
+        words = evm.get_state().get_all_words()
+        return {"success": True, "data": words}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/chain/library")
 async def get_library():
-    return evm.get_state().get_all_dictionaries()
+    """Fetch all published dictionaries from the blockchain"""
+    try:
+        dictionaries = evm.get_state().get_all_dictionaries()
+        return {"success": True, "data": dictionaries}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

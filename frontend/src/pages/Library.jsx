@@ -13,7 +13,7 @@ export default function Library({ userAddress }) {
         try {
             const res = await fetch('/api/chain/library');
             const data = await res.json();
-            setDictionaries(data);
+            setDictionaries(data.data || data);
         } catch (e) {
             console.error(e);
         }
@@ -23,7 +23,7 @@ export default function Library({ userAddress }) {
         try {
             const res = await fetch('/api/chain/words');
             const data = await res.json();
-            setWords(data);
+            setWords(data.data || data);
         } catch (e) { console.error(e); }
     }
 
@@ -31,16 +31,16 @@ export default function Library({ userAddress }) {
         const title = prompt("Enter Dictionary Title:");
         if (!title) return;
 
-        // Logic: Collect all user's words
-        const userWords = words.filter(w => w.owner === userAddress);
-        // if (userWords.length < 100) {
-        //     alert(`You only have ${userWords.length}/100 words needed to publish a dictionary.`);
-        //     return;
-        // }
-        const wordIds = userWords.map(w => w.id);
+        // Logic: Collect all community words or just user's words
+        const allWords = words.length > 0 ? words : [];
+        if (allWords.length === 0) {
+            alert("No words available yet. Create some words first!");
+            return;
+        }
+        const wordIds = allWords.map(w => w.id);
 
         try {
-            const res = await fetch(`/api/chain/transaction?address=${userAddress}`, {
+            const res = await fetch(`/api/chain/transaction?address=${encodeURIComponent(userAddress)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -54,10 +54,10 @@ export default function Library({ userAddress }) {
                 alert("Dictionary Published to Chain!");
                 fetchLibrary();
             } else {
-                alert("Error: " + result.error);
+                alert("Error: " + (result.error || result.detail || "Unknown error"));
             }
         } catch (e) {
-            alert("Transaction failed");
+            alert("Transaction failed: " + e.message);
         }
     };
 
