@@ -76,3 +76,39 @@ class StateManager:
 
     def get_all_dictionaries(self) -> List[Dict]:
         return list(self.dictionaries.values())
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize state to dictionary for persistence."""
+        return {
+            "words": self.words,
+            "dictionaries": self.dictionaries,
+            "word_count": self.word_count,
+            "dictionary_count": self.dictionary_count,
+            "accounts": {addr: {
+                "address": acc.address,
+                "balance": acc.balance,
+                "nonce": acc.nonce,
+                "storage": acc.storage
+            } for addr, acc in self.accounts.items()}
+        }
+    
+    def from_dict(self, data: Dict[str, Any]):
+        """Load state from dictionary."""
+        self.words = data.get("words", {})
+        # Convert string keys back to int for words
+        self.words = {int(k): v for k, v in self.words.items()}
+        
+        self.dictionaries = data.get("dictionaries", {})
+        # Convert string keys back to int for dictionaries
+        self.dictionaries = {int(k): v for k, v in self.dictionaries.items()}
+        
+        self.word_count = data.get("word_count", 0)
+        self.dictionary_count = data.get("dictionary_count", 0)
+        
+        # Restore accounts
+        accounts_data = data.get("accounts", {})
+        for addr, acc_data in accounts_data.items():
+            acc = Account(addr, acc_data.get("balance", 0))
+            acc.nonce = acc_data.get("nonce", 0)
+            acc.storage = acc_data.get("storage", {})
+            self.accounts[addr] = acc

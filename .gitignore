@@ -4,9 +4,28 @@ __pycache__/
 *$py.class
 venv/
 .env
+*.pyc
 
 # Node
 node_modules/
 frontend/node_modules/
+frontend/dist/
 dist/
 .DS_Store
+
+# Blockchain / Scaffold-ETH-2
+blockchain/node_modules/
+blockchain/packages/*/node_modules/
+blockchain/packages/hardhat/artifacts/
+blockchain/packages/hardhat/cache/
+blockchain/packages/hardhat/deployments/localhost/
+blockchain/packages/nextjs/.next/
+blockchain/packages/nextjs/out/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Local Data
+.digitionary_blockchain.json
