@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { BrowserProvider } from 'ethers';
 import { SiweMessage } from 'siwe';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// Pages
+import Dashboard from './pages/Dashboard';
+import CreatePage from './pages/CreatePage';
+import Library from './pages/Library';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -69,32 +75,24 @@ export default function App() {
 
   if (isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex flex-col items-center justify-center p-8">
-        <div className="max-w-2xl w-full bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-12 border border-white/20">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-4">
-              Welcome to Digi-tionary
-            </h1>
-            <p className="text-lg text-gray-600 mb-8">
-              You have successfully authenticated secure access.
-            </p>
-
-            <div className="bg-gray-50/50 rounded-xl p-6 mb-8 border border-gray-100">
-              <p className="text-sm font-medium text-gray-500 mb-2 uppercase tracking-wide">Connected Identity</p>
-              <p className="text-gray-900 font-mono text-sm break-all font-medium">
-                {userAddress}
-              </p>
+      <BrowserRouter>
+        <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
+          {/* Simple Navbar for Navigation testing */}
+          <nav className="bg-white border-b border-gray-100 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
+            <div className="font-bold text-xl tracking-tight">Digi-tionary</div>
+            <div className="text-sm font-mono bg-gray-100 px-3 py-1 rounded-full text-gray-600">
+              {userAddress.slice(0, 6)}...{userAddress.slice(-4)}
             </div>
+          </nav>
 
-            <button
-              onClick={handleLogout}
-              className="group relative inline-flex items-center justify-center px-8 py-3 text-base font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-            >
-              Sign out
-            </button>
-          </div>
+          <Routes>
+            <Route path="/" element={<Dashboard userAddress={userAddress} />} />
+            <Route path="/create" element={<CreatePage userAddress={userAddress} />} />
+            <Route path="/library" element={<Library userAddress={userAddress} />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
         </div>
-      </div>
+      </BrowserRouter>
     );
   }
 
