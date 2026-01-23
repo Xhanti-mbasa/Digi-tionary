@@ -7,9 +7,16 @@ requires-python = ">=3.12"
 dependencies = [
     "algorand-python==3.3.0",
     "cffi==2.0.0",
+    "eth-account==0.10.0",
+    "fastapi==0.104.1",
     "msgpack==1.1.2",
+    "passlib[bcrypt]==1.7.4",
     "py-algorand-sdk==2.11.1",
     "pycparser==3.0",
     "pycryptodomex==3.23.0",
     "pynacl==1.6.2",
+    "python-jose[cryptography]==3.3.0",
+    "python-multipart==0.0.6",
+    "siwe==4.2.0",
+    "uvicorn[standard]==0.24.0",
 ]
