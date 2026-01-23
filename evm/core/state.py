@@ -6,6 +6,7 @@ class Account:
         self.address = address
         self.balance = balance
         self.nonce = 0
+        self.username: str = None # User's display name
         self.storage: Dict[str, Any] = {} # Contract storage
 
 class StateManager:
@@ -15,7 +16,12 @@ class StateManager:
         self.words: Dict[int, Dict] = {}
         self.dictionaries: Dict[int, Dict] = {}
         self.word_count = 0
+        self.word_count = 0
         self.dictionary_count = 0
+
+    def set_username(self, address: str, username: str):
+        account = self.get_account(address)
+        account.username = username
 
     def get_account(self, address: str) -> Account:
         if address not in self.accounts:

@@ -49,6 +49,13 @@ class EVM:
             dict_id = self.state.create_dictionary(title, word_ids, sender)
             return {"success": True, "dictionaryId": dict_id}
 
+        elif action == "updateProfile":
+            username = data.get("username")
+            if not username:
+                 return {"success": False, "error": "Username is required"}
+            self.state.set_username(sender, username)
+            return {"success": True}
+
         else:
             return {"success": False, "error": "Unknown action"}
 

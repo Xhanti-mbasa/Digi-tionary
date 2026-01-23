@@ -74,8 +74,16 @@ export default function CreatePage({ userAddress }) {
                             {selectedWord ? `Editing: ${selectedWord.term}` : 'Create New Word'}
                         </h2>
                         {selectedWord && (
-                            <button onClick={() => setSelectedWord(null)} className="text-sm text-gray-500 hover:text-gray-900">
-                                Cancel Edit
+                            <button
+                                onClick={() => {
+                                    setSelectedWord(null);
+                                    setTerm('');
+                                    setContent('');
+                                    setCommitMsg('');
+                                }}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                            >
+                                ← Return to New Word
                             </button>
                         )}
                     </div>

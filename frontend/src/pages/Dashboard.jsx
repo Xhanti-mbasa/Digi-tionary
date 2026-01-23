@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 
-export default function Dashboard({ userAddress }) {
+export default function Dashboard({ userAddress, username }) {
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
             <div className="max-w-4xl w-full">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome, Auditor</h1>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome, {username || "Auditor"}</h1>
                     <p className="font-mono text-gray-500 bg-white inline-block px-4 py-2 rounded-full border border-gray-200 shadow-sm text-sm">
                         {userAddress}
                     </p>

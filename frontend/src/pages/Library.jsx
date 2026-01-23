@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { BrowserProvider } from 'ethers';
+import { sendZeroValueTransaction } from '../utils/transaction';
 
 export default function Library({ userAddress }) {
     const [dictionaries, setDictionaries] = useState([]);
@@ -27,55 +30,115 @@ export default function Library({ userAddress }) {
         } catch (e) { console.error(e); }
     }
 
-    const createDictionary = async () => {
-        const title = prompt("Enter Dictionary Title:");
-        if (!title) return;
+    // New State for confirmation UI
+    const [isCreating, setIsCreating] = useState(false);
+    const [newTitle, setNewTitle] = useState('');
 
-        // Logic: Collect all user's words
-        const userWords = words.filter(w => w.owner === userAddress);
-        // if (userWords.length < 100) {
-        //     alert(`You only have ${userWords.length}/100 words needed to publish a dictionary.`);
-        //     return;
-        // }
+    const handlePublishStart = () => {
+        // Logic: Collect all user's words (Case Insensitive)
+        const userWords = words.filter(w => w.owner.toLowerCase() === userAddress.toLowerCase());
+
+        if (userWords.length === 0) {
+            alert("You need to mint some words first!");
+            navigate('/create');
+            return;
+        }
+        setIsCreating(true);
+    };
+
+    const confirmPublish = async () => {
+        if (!newTitle.trim()) return;
+
+        const userWords = words.filter(w => w.owner.toLowerCase() === userAddress.toLowerCase());
         const wordIds = userWords.map(w => w.id);
 
         try {
+            // 1. Trigger Zero Value Transaction
+            if (window.ethereum) {
+                const provider = new BrowserProvider(window.ethereum);
+                const signer = await provider.getSigner();
+                await sendZeroValueTransaction(signer);
+            } else {
+                throw new Error("No crypto wallet found");
+            }
+
+            // 2. Call Backend API
             const res = await fetch(`/api/chain/transaction?address=${userAddress}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: "createDictionary",
-                    title,
+                    title: newTitle,
                     wordIds
                 })
             });
             const result = await res.json();
+
+            if (!res.ok) {
+                throw new Error(result.detail || result.error || "Unknown error");
+            }
+
             if (result.success) {
                 alert("Dictionary Published to Chain!");
+                setNewTitle('');
+                setIsCreating(false);
                 fetchLibrary();
             } else {
                 alert("Error: " + result.error);
             }
         } catch (e) {
-            alert("Transaction failed");
+            alert("Transaction failed: " + e.message);
         }
     };
+
+    const navigate = useNavigate();
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
             <div className="max-w-6xl mx-auto">
+                {/* Back Button */}
+                <button
+                    onClick={() => navigate('/')}
+                    className="mb-8 flex items-center text-gray-500 hover:text-gray-900 transition-colors"
+                >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Dashboard
+                </button>
+
                 <div className="flex justify-between items-center mb-12">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">The Library</h1>
                         <p className="text-gray-500">Immutable collections on the Digi-tionary blockchain</p>
                     </div>
-                    <button
-                        onClick={createDictionary}
-                        className="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2"
-                    >
-                        <div className="w-5 h-5 border-2 border-white rounded-full flex items-center justify-center text-xs">+</div>
-                        Publish Dictionary
-                    </button>
+                    {isCreating ? (
+                        <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-lg border border-gray-200 animate-fade-in">
+                            <input
+                                autoFocus
+                                type="text"
+                                value={newTitle}
+                                onChange={e => setNewTitle(e.target.value)}
+                                placeholder="Dictionary Title..."
+                                className="px-3 py-1 border-none focus:ring-0 text-sm font-bold text-gray-900 w-48"
+                                onKeyDown={e => e.key === 'Enter' && confirmPublish()}
+                            />
+                            <button onClick={confirmPublish} className="bg-black text-white px-3 py-1 rounded-lg text-sm font-bold hover:bg-gray-800">
+                                Confirm
+                            </button>
+                            <button onClick={() => setIsCreating(false)} className="text-gray-400 hover:text-gray-600 px-2">
+                                ×
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={handlePublishStart}
+                            className="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2"
+                        >
+                            <div className="w-5 h-5 border-2 border-white rounded-full flex items-center justify-center text-xs">+</div>
+                            Publish Dictionary
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
